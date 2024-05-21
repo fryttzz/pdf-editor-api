@@ -14,8 +14,8 @@ def get_all() -> List:
     return [{"pdf_01": "pdf"}, {"pdf_02": "pdf"}]
 
 
-@router.post("/upload_files")
-async def upload_files(files: List[UploadFile] = File(...)):
+@router.post("/merge")
+async def merge(files: List[UploadFile] = File(...)):
 
     saved_files = []
 
@@ -34,9 +34,8 @@ async def upload_files(files: List[UploadFile] = File(...)):
     return {"files": saved_files}
 
 
-@router.post("/upload_file")
-async def upload_file(file: UploadFile = File(...)):
-
+@router.post("/split")
+async def split(file: UploadFile = File(...)):
     if not allowed_files.handle(file.filename):
         return {"error": "Tipo de arquivo não permitido"}
 
@@ -47,3 +46,12 @@ async def upload_file(file: UploadFile = File(...)):
         f.write(content)
 
     return FileResponse(save_path, media_type=file.content_type, filename=file.filename)
+
+
+@router.post("/pdf_to_png")
+async def pdf_to_png(file: UploadFile = File(...)):
+    pass
+
+@router.post("/png_to_pdf")
+async def png_to_pdf(file: UploadFile = File(...)):
+    pass
