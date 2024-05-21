@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse
 from utils import allowed_files
 from services import merge as merge_service
 from services import pdf_to_png as pdf_to_png_service
+from services import png_to_pdf as png_to_pdf_service
 import time
 import os
 
@@ -82,4 +83,16 @@ async def pdf_to_png(file: UploadFile = File(...)):
     "/png_to_pdf", status_code=status.HTTP_200_OK, summary="Transforma um PNG em PDF"
 )
 async def png_to_pdf(file: UploadFile = File(...)):
-    pass
+    if not allowed_files.handle(file.filename):
+        return {"error": "Tipo de arquivo não permitido"}
+
+    content = await file.read()
+    new_filename = f"{int(time.time())}_{file.filename}"
+
+    save_path = os.path.join("uploads", new_filename)
+    with open(save_path, "wb") as f:
+        f.write(content)
+
+    converted_file = png_to_pdf_service.handle(save_path)
+
+    return FileResponse(converted_file["path"], filename=converted_file["filename"])
