@@ -4,11 +4,16 @@ import os
 
 writer = PdfWriter()
 
-def merge_pdfs():
-    pdfs_dir = f"{os.curdir}/pdfs"
-    for file in os.listdir(pdfs_dir):
+
+def handle(files):
+    for file in files:
         if file.endswith(".pdf"):
-            writer.append(os.path.join(pdfs_dir, file))
-    writer.write(f"mergered_{int(time.time())}.pdf")
+            writer.append(os.path.join("uploads", file))
+            
+    filename = f"mergered_{int(time.time())}.pdf"
+    mergered_file_path = f"result/{filename}"
+    
+    writer.write(mergered_file_path)
     writer.close()
-    print("\nProcesso Finalizado!")
+    
+    return {"path":mergered_file_path, "filename": filename}
