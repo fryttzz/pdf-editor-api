@@ -3,6 +3,7 @@ from fastapi import APIRouter, status, UploadFile, File
 from fastapi.responses import FileResponse
 from utils import allowed_files
 from services import merge as merge_service
+from services import pdf_to_png as pdf_to_png_service
 import time
 import os
 
@@ -28,7 +29,7 @@ async def merge(files: List[UploadFile] = File(...)):
             return {"error": "Tipo de arquivo não permitido"}
 
         content = await file.read()
-        new_filename = f"{file.filename[:-4]}_{int(time.time())}.pdf"
+        new_filename = f"{int(time.time())}_{file.filename}"
 
         save_path = os.path.join("uploads", new_filename)
         with open(save_path, "wb") as f:
@@ -38,10 +39,12 @@ async def merge(files: List[UploadFile] = File(...)):
 
     merged_file = merge_service.handle(saved_files)
 
-    return FileResponse(merged_file['path'], filename=merged_file['filename'])
+    return FileResponse(merged_file["path"], filename=merged_file["filename"])
 
 
-@router.post("/split", status_code=status.HTTP_200_OK, summary="Retorna os PDF separados")
+@router.post(
+    "/split", status_code=status.HTTP_200_OK, summary="Retorna os PDF separados"
+)
 async def split(file: UploadFile = File(...)):
     if not allowed_files.handle(file.filename):
         return {"error": "Tipo de arquivo não permitido"}
@@ -55,11 +58,28 @@ async def split(file: UploadFile = File(...)):
     return FileResponse(save_path, media_type=file.content_type, filename=file.filename)
 
 
-@router.post("/pdf_to_png", status_code=status.HTTP_200_OK, summary="Transforma um PDF em PNG")
+@router.post(
+    "/pdf_to_png", status_code=status.HTTP_200_OK, summary="Transforma um PDF em PNG"
+)
 async def pdf_to_png(file: UploadFile = File(...)):
-    pass
+
+    if not allowed_files.handle(file.filename):
+        return {"error": "Tipo de arquivo não permitido"}
+
+    content = await file.read()
+    new_filename = f"{int(time.time())}_{file.filename}"
+
+    save_path = os.path.join("uploads", new_filename)
+    with open(save_path, "wb") as f:
+        f.write(content)
+
+    converted_file = pdf_to_png_service.handle(save_path)
+
+    return FileResponse(converted_file["path"], filename=converted_file["filename"])
 
 
-@router.post("/png_to_pdf", status_code=status.HTTP_200_OK, summary="Transforma um PNG em PDF")
+@router.post(
+    "/png_to_pdf", status_code=status.HTTP_200_OK, summary="Transforma um PNG em PDF"
+)
 async def png_to_pdf(file: UploadFile = File(...)):
     pass
