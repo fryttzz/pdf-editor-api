@@ -1,25 +1,23 @@
 from PyPDF2 import PdfReader, PdfWriter
+from utils import compress_files
+import time
 import os
 
-writer = PdfWriter()
+def handle(file):
+    writer = PdfWriter()
+    splited_files = []
 
-def pdf_split():
-    pdfs_dir = os.curdir
+    if file.endswith(".pdf"):
+        pdf = PdfReader(file)
 
-    for file in os.listdir(pdfs_dir):
-        if file.endswith(".pdf"):
-            print(file)
-            pdf = PdfReader(file)
+        for page in range(len(pdf.pages)):
+            writer.add_page(pdf.pages[page])
+            output_filename = f"{os.curdir}/result/{int(time.time())}_page_{page + 1}.pdf"
+            splited_files.append(f"{os.curdir}/result/{int(time.time())}_page_{page + 1}.pdf")
 
-            for page in range(len(pdf.pages)):
-                writer.add_page(pdf.pages[page])
-                output_filename = "{}/pdfs/{}_page_{}.pdf".format(
-                    os.curdir, file[:-4], page + 1
-                )
+            with open(output_filename, "wb") as out:
+                writer.write(out)
+            writer.close()
 
-                with open(output_filename, "wb") as out:
-                    writer.write(out)
-                writer.close()
-
-                print("Created: {}".format(output_filename))
-    print("\nProcesso Finalizado!")
+        zip = compress_files.handle(splited_files)
+    return zip

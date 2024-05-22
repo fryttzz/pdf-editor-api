@@ -5,6 +5,7 @@ from utils import allowed_files
 from services import merge as merge_service
 from services import pdf_to_png as pdf_to_png_service
 from services import png_to_pdf as png_to_pdf_service
+from services import split as split_service
 import time
 import os
 
@@ -55,8 +56,10 @@ async def split(file: UploadFile = File(...)):
     save_path = os.path.join("uploads", file.filename)
     with open(save_path, "wb") as f:
         f.write(content)
+        
+    converted_file = split_service.handle(save_path)
 
-    return FileResponse(save_path, media_type=file.content_type, filename=file.filename)
+    return FileResponse(converted_file["path"], filename=converted_file["filename"])
 
 
 @router.post(
