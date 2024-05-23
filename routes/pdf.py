@@ -12,13 +12,6 @@ import os
 router = APIRouter()
 
 
-@router.get(
-    "/", status_code=status.HTTP_200_OK, summary="Retrieves a collection of PDFs"
-)
-def get_all() -> List:
-    return [{"pdf_01": "pdf"}, {"pdf_02": "pdf"}]
-
-
 @router.post(
     "/merge", status_code=status.HTTP_200_OK, summary="Retorna um PDF mesclado"
 )
@@ -56,7 +49,7 @@ async def split(file: UploadFile = File(...)):
     save_path = os.path.join("uploads", file.filename)
     with open(save_path, "wb") as f:
         f.write(content)
-        
+
     converted_file = split_service.handle(save_path)
 
     return FileResponse(converted_file["path"], filename=converted_file["filename"])
