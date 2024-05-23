@@ -1,11 +1,7 @@
-from PyPDF2 import PdfWriter
 from pdf2image import convert_from_path
 from utils import compress_files
 import time
 import os
-
-writer = PdfWriter()
-
 
 def handle(file):
     converted = []
